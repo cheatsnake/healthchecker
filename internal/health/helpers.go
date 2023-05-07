@@ -9,7 +9,7 @@ func defineStatus(code int, status string) string {
 	var emoji string
 
 	if code < successCodesThreshold {
-		emoji = "✔️"
+		emoji = "✅"
 	} else if code < redirectCodesThreshold {
 		emoji = "❔"
 	} else {
@@ -25,7 +25,7 @@ func defineSpeed(ms int64) string {
 	if ms < fastSpeedThreshold {
 		emoji = "🚀"
 	} else if ms < mediumSpeedThreshold {
-		emoji = "✈️"
+		emoji = "🛹"
 	} else {
 		emoji = "🐢"
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -28,7 +29,7 @@ func NewChecker() *Checker {
 	}
 }
 
-func (ch *Checker) Url(url string) (Result, error) {
+func (ch *Checker) url(url string) (Result, error) {
 	start := time.Now()
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -57,25 +58,35 @@ func (ch *Checker) Url(url string) (Result, error) {
 	}, nil
 }
 
+type multiResult struct {
+	results []Result
+	errors  []error
+	mu      sync.Mutex
+}
+
 func (ch *Checker) Urls(urls []string) ([]Result, []error) {
-	results := make([]Result, 0, len(urls))
-	errors := make([]error, 0, len(urls))
-	done := make(chan bool)
-
-	for _, url := range urls {
-		go func(u string) {
-			res, err := ch.Url(u)
-
-			results = append(results, res)
-			errors = append(errors, err)
-
-			done <- true
-		}(url)
+	var wg sync.WaitGroup
+	mr := multiResult{
+		results: make([]Result, len(urls)),
+		errors:  make([]error, len(urls)),
 	}
 
-	for i := 0; i < len(urls); i++ {
-		<-done
+	wg.Add(len(urls))
+
+	for idx, url := range urls {
+		go func(i int, u string) {
+			defer wg.Done()
+
+			res, err := ch.url(u)
+
+			mr.mu.Lock()
+			mr.results[i] = res
+			mr.errors[i] = err
+			mr.mu.Unlock()
+		}(idx, url)
 	}
 
-	return results, errors
+	wg.Wait()
+
+	return mr.results, mr.errors
 }

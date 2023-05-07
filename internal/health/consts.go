@@ -2,12 +2,9 @@ package health
 
 import "time"
 
-const requestTimeout = 7 * time.Second
+const requestTimeout = 5 * time.Second
 
-const (
-	titleRgPattern string = `<title.*>(.*?)</title.*>`
-	digitRgPattern string = `[0-9]+`
-)
+const titleRgPattern string = `<title.*>(.*?)</title.*>`
 
 const (
 	successCodesThreshold  = 300
