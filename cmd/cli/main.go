@@ -64,7 +64,7 @@ func main() {
 }
 
 func printHelp() {
-	fmt.Println("healthcheck - show the health of HTTP servers")
+	fmt.Println("healthcheck - show the availability of HTTP servers")
 	fmt.Println()
 	fmt.Println("Usage:")
 	fmt.Println("\t-urls \"...URLs\" - list of HTTP URLs to check")
